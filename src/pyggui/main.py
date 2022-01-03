@@ -2,17 +2,15 @@
 Module containing main Game class
 """
 
-from typing import Tuple, Callable
-import os
-import sys
+from typing import Tuple
 import inspect
 
 import pygame
 
-from _pyggui.controller import Controller
-from _pyggui.input import Input
-from _pyggui.window import Window
-from _pyggui import configure
+from pyggui.controller import Controller
+from pyggui.input import Input
+from pyggui.window import Window
+from pyggui import configure
 
 
 class Game:

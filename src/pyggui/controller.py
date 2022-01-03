@@ -4,14 +4,11 @@ Module containing the controller class.
 Controller class object acts as an intermediate between game wide objects, used for page redirection, game pausing, ...
 """
 
-from typing import Callable, Dict
-import sys
-import inspect
+from typing import Dict
 
-from _pyggui.helpers.stack import Stack
-from _pyggui.gui.page import Page
-from _pyggui.defaults.__welcome_page import _WelcomePage
-from _pyggui.configure.pages import get_all_page_classes
+from pyggui.helpers.stack import Stack
+from pyggui.defaults.__welcome_page import _WelcomePage
+from pyggui.configure.pages import get_all_page_classes
 
 
 class Controller:

@@ -1,4 +1,4 @@
-from _pyggui.gui.page import Page
+from pyggui.gui.page import Page
 
 
 class _WelcomePage(Page):

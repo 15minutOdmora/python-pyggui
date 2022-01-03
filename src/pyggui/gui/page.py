@@ -1,5 +1,5 @@
 """
-
+Module containing base classes for pages.
 """
 
 from typing import List, Tuple
@@ -10,6 +10,7 @@ import pygame
 class Page:
     """
     Main class other pages should inherit from.
+    Page object functions similarly to an Item, it can be moved and resized.
     """
     def __init__(self, controller: 'Controller'):
         """

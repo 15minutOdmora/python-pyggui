@@ -26,7 +26,7 @@ def get_all_page_classes() -> Dict[str, any]:
     """
     # Fetch all classes defined in the _pyggui.gui.page.py module, save all of its subclasses that are imported
     pages = {}  # Create dictionary with each classes name str as key, class as value
-    for name, cls in inspect.getmembers(sys.modules["_pyggui.gui.page"]):  # Get members of each module
+    for name, cls in inspect.getmembers(sys.modules["pyggui.gui.page"]):  # Get members of each module
         if inspect.isclass(cls):  # Filter only classes
             for _class in cls.__subclasses__():  # Fetch subclasses
                 pages[str(_class.__name__)] = _class
