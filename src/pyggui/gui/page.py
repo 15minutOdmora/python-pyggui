@@ -2,9 +2,11 @@
 Module containing base classes for pages.
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 import pygame
+
+from pyggui.gui.event_handler import EventHandler
 
 
 class Page:
@@ -24,6 +26,8 @@ class Page:
         self.background_color = (0, 0, 0)
         size = self.screen.get_size()
         self.rect = pygame.Rect(0, 0, size[0], size[1])  # Initial position at (0, 0)
+
+        self.event_handlers: List[EventHandler] = []
 
     @property
     def position(self) -> List[int]:
@@ -74,6 +78,31 @@ class Page:
     def height(self, new_height: int) -> None:
         self.rect.height = new_height
 
+    def add_event_handler(self, event_handler: EventHandler) -> None:
+        """
+        Method adds a page-wide EventHandler object. This event handler is not triggered after the page has been
+        redirected from i.e. with the redirect_to or go_back methods of Controller.
+
+        Args:
+            event_handler (EventHandler): EventHandler object to add.
+        """
+        self.controller.input.add_event_handler(event_handler)
+        self.event_handlers.append(event_handler)
+
+    def add_event_type_handler(self, event_type: int, handler: Callable):
+        """
+        Method adds a single page-wide event type handler. The handler callable function gets triggered once the
+        event_type appears in the main input loop. This event type handler is not triggered after the page has been
+        redirected from i.e. with the redirect_to or go_back methods of Controller.
+
+        Args:
+            event_type (int): Pygame event type.
+            handler (Callable): Callable function to get called once the event type appears in the main input loop.
+        """
+        # Create an EventHandler object
+        event_handler = EventHandler(types=event_type, handlers=handler)
+        self.add_event_handler(event_handler)
+
     def add_item(self, item: any) -> None:
         """
         Method adds item to page. Items position should be set beforehand.
@@ -100,3 +129,18 @@ class Page:
         """
         for item in self.items:
             item.draw()
+
+    def on_appearance(self) -> None:
+        """
+        Method gets called once the page been brought up again.
+        """
+        # Re-add all page event handlers to input
+        for event_handler in self.event_handlers:
+            self.controller.input.add_event_handler(event_handler)
+
+    def on_exit(self) -> None:
+        """
+        Method gets called once the page has been redirected from.
+        """
+        # Remove all page event handlers from input
+        self.controller.input.remove_event_handlers(self.event_handlers)
