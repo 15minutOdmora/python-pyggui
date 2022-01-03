@@ -43,11 +43,12 @@ class Game:
         self._dt = 0  # Change of time between seconds
         self.paused = False  # If game is paused
         self.entry_page = entry_page
+
         # Game wide objects
         self.development = None  # Development(self)
+        self.input = Input(self)
         self.controller = Controller(self)
         self.window = Window(self)
-        self.input = Input(self)
 
     @property
     def dt(self) -> float:

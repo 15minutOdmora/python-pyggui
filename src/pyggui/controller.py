@@ -4,7 +4,7 @@ Module containing the controller class.
 Controller class object acts as an intermediate between game wide objects, used for page redirection, game pausing, ...
 """
 
-from typing import Dict
+from typing import Dict, Callable
 
 from pyggui.helpers.stack import Stack
 from pyggui.defaults.__welcome_page import _WelcomePage
@@ -22,15 +22,8 @@ class Controller:
             game (Game): Main game object.
         """
         self.game = game
+        self._input = self.game.input  # Set input attr. Accessible through properties
 
-        # Save as two consecutive mouse positions / clicks, accessible through properties
-        self.mouse_position: list[tuple[int, int]] = (0, 0)
-        self._mouse_pressed: bool = [False, False]
-        self.mouse_clicked = False
-        self.mouse_movement = (0, 0)
-        self.mouse_scroll = 0  # Wheel on the mouse, 1 if up -1 if down roll
-        self.esc_clicked: bool = False
-        self.key_pressed: dict = {}
         # Pages setup
         self.pages: Dict = get_all_page_classes()
         self.page_stack: Stack = Stack()
@@ -43,35 +36,8 @@ class Controller:
             self.current_page = self.pages[self.game.entry_page]
 
     @property
-    def mouse_pressed(self) -> bool:
-        """
-        If mouse was clicked on current frame.
-
-        Returns:
-            bool: If clicked
-        """
-        return self._mouse_pressed[-1]  # Last click
-
-    @mouse_pressed.setter
-    def mouse_pressed(self, clicked: bool) -> None:
-        """
-        Mouse pressed on current frame.
-
-        Args:
-            clicked (bool): If mouse pressed
-        """
-        self._mouse_pressed.append(clicked)
-        self._mouse_pressed = self._mouse_pressed[-2:]  # Save as only the last 2 recent clicks
-
-    @property
-    def previous_mouse_pressed(self) -> bool:
-        """
-        If mouse was pressed on previous frame.
-
-        Returns:
-            bool: If pressed
-        """
-        return self._mouse_pressed[0]  # Left one is the previous one as we append clicks
+    def input(self):
+        return self._input
 
     @property
     def dt(self) -> float:
@@ -123,6 +89,28 @@ class Controller:
         """
         self.page_stack.push(page(self))  # Initialize page
 
+    def add_event_handler(self, event_handler: 'EventHandler') -> None:
+        """
+        Method adds a game-wide EventHandler object.
+
+        Args:
+            event_handler (EventHandler): EventHandler object to add.
+        """
+        self.input.add_event_type_handler(event_handler)
+
+    def add_event_type_handler(self, event_type: int, handler: Callable):
+        """
+        Method adds a single game-wide event type handler. The handler callable function gets triggered once the
+        event_type appears in the main input loop.
+
+        Args:
+            event_type (int): Pygame event type.
+            handler (Callable): Callable function to get called once the event type appears in the main input loop.
+        """
+        # This method adds an event type handler game wide, if you want the event to be deleted after page is not used
+        # i.e. after redirection, use the pages custom event handler.
+        self.input.add_event_type_handler(event_type=event_type, handler=handler)
+
     def redirect_to_page(self, to_page: str, *args, **kwargs) -> None:
         """
         Method redirects to page defined as a string. Args and Kwargs are passed to page class initialization.
@@ -134,6 +122,7 @@ class Controller:
             **kwargs (any): Get passed to pages class initialization.
         """
         if to_page in self.pages.keys():
+            self.current_page.on_exit()  # Call on-exit function
             self.page_stack.push(self.pages[to_page](self, *args, **kwargs))  # Initialize page and push on stack
         else:
             print(f"Controller: Redirection error to page {to_page}. Page does not exist.")
@@ -143,7 +132,9 @@ class Controller:
         Method goes back one page in the page stack.
         """
         if not self.page_stack.empty():
-            self.page_stack.pop()
+            self.current_page.on_exit()  # Call on-exit function
+            self.page_stack.pop()  # Remove current page
+            self.current_page.on_appearance()  # Call on appearance on new page
         else:
             print(f"Controller: Redirection error calling go_back.\n   Page stack is empty.")
 

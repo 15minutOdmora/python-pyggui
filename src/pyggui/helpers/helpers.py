@@ -19,14 +19,14 @@ def create_callable(func: Callable, *args, **kwargs) -> Callable:
     Returns:
         Callable: Function that executes passed function when called.
     """
-    def callable_func():
-        return func(*args, **kwargs)
+    def callable_func(*caller_args, **caller_kwargs):  # Add caller args, used in handling events passing event kwarg
+        return func(*args, *caller_args, **kwargs, **caller_kwargs)
     return callable_func
 
 
-def check_function_arguments(func: Callable, *args) -> Callable:
+def check_callable_arguments(func: Callable, *args) -> Callable:
     """
-    Function checks that the passed function func accepts arguments passed through args.
+    Function checks that the passed callable func accepts arguments passed through args.
 
     Args:
         func (): Callable function to perform check on.

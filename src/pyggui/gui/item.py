@@ -127,9 +127,9 @@ class Item(_Item):
     @property
     def mouse_clicked(self):
         if self.movable:
-            return self.controller.mouse_pressed
+            return self.controller.input.mouse_pressed
         else:
-            return self.controller.mouse_clicked
+            return self.controller.input.mouse_clicked
 
     def add_on_click(self, on_click: Union[Callable, List[Callable], Tuple[Callable]]) -> None:
         """
@@ -167,8 +167,10 @@ class Item(_Item):
             func()
 
     def update(self):
-        """ Used for updating all items attached to it(sizes, positions, etc.). """
-        self.hovered = self.rect.collidepoint(self.controller.mouse_position)
+        """
+        Used for updating all items attached to it(sizes, positions, etc.).
+        """
+        self.hovered = self.rect.collidepoint(self.controller.input.mouse_position)
         # Check if mouse was clicked on item, in the interval of the debounce time
         if self.hovered and self.mouse_clicked and self.debounce_time():
             self.on_click()
@@ -184,7 +186,9 @@ class Item(_Item):
             item.update()
 
     def draw(self):
-        """ Used for drawing itself and every item attached to it. """
+        """
+        Used for drawing itself and every item attached to it.
+        """
         pygame.draw.rect(
             self.screen,
             (255, 255, 255),
