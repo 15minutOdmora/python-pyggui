@@ -2,7 +2,7 @@
 Module containing event handler classes.
 """
 
-from typing import Union, List
+from typing import Union, List, Callable
 
 
 class EventHandler:
