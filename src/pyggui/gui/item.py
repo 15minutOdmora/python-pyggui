@@ -96,6 +96,11 @@ class _Item:
 
 
 class Item(_Item):
+    """
+    Class for items that are interactive but dependant on controller object.
+    Items have hovered property which is set to true once the item is hovered by mouse. Have on_click method to trigger
+    an action once the item is clicked.
+    """
     def __init__(
         self,
         controller: 'Controller',
@@ -104,6 +109,15 @@ class Item(_Item):
         on_click: Callable = None,
         movable: bool = False
     ):
+        """
+        Args:
+            controller (Controller): Main controller object.
+            position (List[int] = [0, 0]): Position to place item on screen (or on page).
+            size (Tuple[int, int] = (1, 1)): Size of item.
+            on_click (Callable): Callable function that gets called once the item is clicked. Default to None.
+            movable (bool): If set to true item accepts double error clicks from mouse. (One normal mouse click is
+                usually mora than one received click). Defaults to False.
+        """
         super().__init__(position, size)
 
         self.controller = controller
@@ -197,6 +211,45 @@ class Item(_Item):
         # Logic for drawing itself goes here
         for item in self.items:
             item.draw()
+
+    def __repr__(self) -> str:
+        """
+        Returns representation of object.
+        :return: str representation of object
+        """
+        return create_object_repr(self)
+
+
+class StaticItem(_Item):
+    """
+    Class for static items that are not intractable (can't be clicked and do not have hovered property).
+    """
+    def __init__(
+        self,
+        position: List[int] = [0, 0],
+        size: Tuple[int, int] = (1, 1),
+        visible: bool = True,
+        selected: bool = False
+    ):
+        """
+        Args:
+            position (List[int] = [0, 0]): Position to place item on screen (or on page).
+            size (Tuple[int, int] = (1, 1)): Size of item.
+            visible (bool): If item is currently visible.
+            selected (bool): If item is currently selected.
+        """
+        super().__init__(position, size, visible, selected)
+
+    def update(self) -> None:
+        """ Used for updating all items attached to it(sizes, positions, etc.). """
+        for item in self.items:
+            item.update()
+
+    def draw(self) -> None:
+        """ Used for drawing itself and every item attached to it. """
+        if self.visible:
+            for item in self.items:
+                item.draw()
 
     def __repr__(self) -> str:
         """
