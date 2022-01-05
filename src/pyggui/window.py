@@ -16,13 +16,13 @@ class Window:
             game (Game): Main Game object used.
         """
         self.game = game
-        self.screen = self.game.screen
+        self.display = self.game.display
 
     def update(self) -> None:
         """
         Method updates and draws the current page while also updating the screen.
         """
-        self.screen.fill((0, 0, 0))
+        self.display.fill((0, 0, 0))
         self.game.controller.current_page.update()
         self.game.controller.current_page.draw()
         pygame.display.update()

@@ -14,7 +14,7 @@ class _Item:
     Base class for all items.
     """
     def __init__(self, position: List[int], size: Tuple[int, int], visible: bool = True, selected: bool = False):
-        self.screen = pygame.display.get_surface()
+        self.display = pygame.display.get_surface()
 
         self.initial_position = position  # Save initial position
         self.rect = pygame.Rect(position[0], position[1], size[0], size[1])
@@ -121,7 +121,7 @@ class Item(_Item):
         super().__init__(position, size)
 
         self.controller = controller
-
+        self.display = controller.display
         # _on_click is a list of callable functions, where each gets executed once the click event is triggered
         self._on_click: List[Callable] = []
         self.add_on_click(on_click)
@@ -186,9 +186,10 @@ class Item(_Item):
         """
         self.hovered = self.rect.collidepoint(self.controller.input.mouse_position)
         # Check if mouse was clicked on item, in the interval of the debounce time
-        if self.hovered and self.mouse_clicked and self.debounce_time():
-            self.on_click()
-            self.was_pressed = True
+        if self.hovered:
+            if self.mouse_clicked and self.debounce_time():
+                self.on_click()
+                self.was_pressed = True
         # Mouse was released
         elif not self.mouse_clicked:
             self.was_pressed = False
@@ -204,7 +205,7 @@ class Item(_Item):
         Used for drawing itself and every item attached to it.
         """
         pygame.draw.rect(
-            self.screen,
+            self.display,
             (255, 255, 255),
             self.rect, width=2
         )
