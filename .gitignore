@@ -24,9 +24,6 @@ venv*/
 pyvenv*/
 pip-wheel-metadata/
 
-# Default assets ignore
-src/pyggui/defaults/assets/*
-
 # Installer logs
 pip-log.txt
 
