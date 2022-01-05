@@ -5,10 +5,12 @@ Controller class object acts as an intermediate between game wide objects, used 
 """
 
 from typing import Dict, Callable
+import traceback
 
 from pyggui.helpers.stack import Stack
 from pyggui.defaults.__welcome_page import _WelcomePage
 from pyggui.configure.pages import get_all_page_classes
+from pyggui.exceptions import RedirectionError
 
 
 class Controller:
@@ -125,7 +127,8 @@ class Controller:
             self.current_page.on_exit()  # Call on-exit function
             self.page_stack.push(self.pages[to_page](self, *args, **kwargs))  # Initialize page and push on stack
         else:
-            print(f"Controller: Redirection error to page {to_page}. Page does not exist.")
+            traceback.print_exc()
+            raise RedirectionError(f"Redirection error to page {to_page}. Page does not exist.")
 
     def go_back(self) -> None:
         """
@@ -136,7 +139,8 @@ class Controller:
             self.page_stack.pop()  # Remove current page
             self.current_page.on_appearance()  # Call on appearance on new page
         else:
-            print(f"Controller: Redirection error calling go_back.\n   Page stack is empty.")
+            traceback.print_exc()
+            raise RedirectionError(f"Redirection error going back. Page stack is empty.")
 
     def pause_game(self) -> None:
         """
