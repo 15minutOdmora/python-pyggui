@@ -39,8 +39,8 @@ class Text(StaticItem):
         self._value = value
         self.font_size = font_size
         # If font not passed use default font, load with pkg_resources so no problems arise in packaging
-        if not font:  # TODO: Change default font -> this one has spacing problems
-            font = pkg_resources.resource_filename("pyggui.defaults.assets.fonts", "arcadeclassic.TTF")
+        if not font:
+            font = pkg_resources.resource_filename("pyggui.defaults.assets.fonts", "retro_gaming.ttf")
         # Check font type, if system specific or file
         if "\\" in font or "." in font:  # If passed font string has / or . it is a path to font file
             self.font = pygame.font.Font(font, font_size)
