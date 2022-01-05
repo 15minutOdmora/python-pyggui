@@ -154,10 +154,11 @@ class Item(_Item):
             on_click (Union[Callable, List[Callable], Tuple[Callable]]): Either a callable function or a list / tuple
             of callable functions.
         """
-        if isinstance(on_click, (list, tuple)):
-            self._on_click += [func for func in on_click]
-        else:
-            self._on_click.append(on_click)
+        if on_click:
+            if isinstance(on_click, (list, tuple)):
+                self._on_click += [func for func in on_click]
+            else:
+                self._on_click.append(on_click)
 
     def debounce_time(self) -> bool:
         """
