@@ -38,6 +38,14 @@ class Controller:
             self.current_page = self.pages[self.game.entry_page]
 
     @property
+    def display(self):
+        return self.game.display
+
+    @property
+    def display_size(self):
+        return self.game.display_size
+
+    @property
     def input(self):
         return self._input
 

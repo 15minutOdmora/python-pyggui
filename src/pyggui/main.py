@@ -17,12 +17,15 @@ class Game:
     """
     Main class for game, holds every game wide property, setting and the main run loop.
     """
+    pygame.init()  # Init Pygame on import time
+
     def __init__(
         self,
         display_size: Tuple[int, int] = (720, 360),
         page_directory: str = None,
         entry_page: str = "_WelcomePage",
-        fps: int = 0
+        fps: int = 0,
+        display: pygame.surface.Surface = None
     ):
         """
         Args:
@@ -30,25 +33,46 @@ class Game:
             page_directory (str): Absolute or relative path to directory containing pages.
                 Defaults to directory of where this object is initialised.
             fps (int): Fps constant for game loop.
+            display (pygame.surface.Surface): Pass your own surface as the main game object display.
         """
         # Import all modules containing pages
         configure.pages.setup(inspect.stack()[1], directory=page_directory)
+
         # Pygame initial configuration
-        pygame.init()
-        self.screen = pygame.display.set_mode(display_size)
+        if display:
+            self._display = display
+            self._display_size = display.get_size()
+        else:
+            self._display = pygame.display.set_mode(display_size, pygame.RESIZABLE)
+            self._display_size = display_size
+
         pygame.display.set_caption("Pygame Window w/pyggui")
         self.clock = pygame.time.Clock()
+
         # Attributes
         self._fps = fps
         self._dt = 0  # Change of time between seconds
         self.paused = False  # If game is paused
         self.entry_page = entry_page
 
-        # Game wide objects
-        self.development = None  # Development(self)
+        # Objects
         self.input = Input(self)
         self.controller = Controller(self)
         self.window = Window(self)
+
+        # Add handler object for screen re-size
+        self.input.add_event_type_handler(
+            event_type=pygame.VIDEORESIZE,
+            handler=self.display_resize_handler
+        )
+
+    @property
+    def display(self):
+        return self._display
+
+    @property
+    def display_size(self):
+        return self._display_size
 
     @property
     def dt(self) -> float:
@@ -77,6 +101,13 @@ class Game:
         Cap FPS of game at given integer value.
         """
         self._fps = int(frame_rate)
+
+    def display_resize_handler(self, event) -> None:
+        """
+        Handler updates the display and its size once the display window has been re-sized.
+        """
+        self._display_size = (event.w, event.h)
+        self._display = pygame.display.set_mode(self.display_size, pygame.RESIZABLE)
 
     def run(self) -> None:
         """

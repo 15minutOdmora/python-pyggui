@@ -19,12 +19,12 @@ class Page:
         Args:
             controller (Controller): Main controller object throughout the game.
         """
-        self.screen = pygame.display.get_surface()
         self.controller = controller
+        self.display = controller.display
         self.items = []
         self.items_positions = []  # Positions relative to the top left corner of page
         self.background_color = (0, 0, 0)
-        size = self.screen.get_size()
+        size = self.display.get_size()
         self.rect = pygame.Rect(0, 0, size[0], size[1])  # Initial position at (0, 0)
 
         self.event_handlers: List[EventHandler] = []
@@ -77,6 +77,10 @@ class Page:
     @height.setter
     def height(self, new_height: int) -> None:
         self.rect.height = new_height
+
+    @property
+    def display_size(self):
+        return self.controller.game.display_size
 
     def add_event_handler(self, event_handler: EventHandler) -> None:
         """

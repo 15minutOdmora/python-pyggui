@@ -36,7 +36,7 @@ class Text(StaticItem):
         pygame.font.init()  # Init font
         # Set color and text
         self.color = color
-        self.value = value
+        self._value = value
         self.font_size = font_size
         # If font not passed use default font, load with pkg_resources so no problems arise in packaging
         if not font:  # TODO: Change default font -> this one has spacing problems
@@ -52,12 +52,21 @@ class Text(StaticItem):
         # Call to super method with new fetched size of surface
         super().__init__(position, size)
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, val: str):
+        self._value = val
+        self.render()
+
     def render(self) -> None:
         """  TODO: Add value property and setter to auto-update text
         Method re-renders the text surface, method should be called once the text value has changed.
         """
-        self.surface = self.font.render(self.value, True, self.color)
-        self.size = self.font.size(self.value)
+        self.surface = self.font.render(self._value, True, self.color)
+        self.size = self.font.size(self._value)
 
     def update(self) -> None:
         """
@@ -70,6 +79,6 @@ class Text(StaticItem):
         """
         Method will draw text and all attached items on screen.
         """
-        self.screen.blit(self.surface, self.position)
+        self.display.blit(self.surface, self.position)
         for item in self.items:
             item.draw()
