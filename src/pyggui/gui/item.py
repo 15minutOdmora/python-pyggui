@@ -88,10 +88,6 @@ class _Item:
         self.items.append(item)
 
     def __repr__(self) -> str:
-        """
-        Returns representation of object.
-        :return: str representation of object
-        """
         return create_object_repr(self)
 
 
@@ -215,10 +211,6 @@ class Item(_Item):
             item.draw()
 
     def __repr__(self) -> str:
-        """
-        Returns representation of object.
-        :return: str representation of object
-        """
         return create_object_repr(self)
 
 
@@ -254,8 +246,83 @@ class StaticItem(_Item):
                 item.draw()
 
     def __repr__(self) -> str:
+        return create_object_repr(self)
+
+
+class ResizableItem(_Item):
+    """
+    Base class for defining static items that have actions performed on them and are able to re-size.
+    The main difference between the Item class is that it can be resized, the lack of on_hover / on_click methods
+    and that this class does not need the controller to be passed.
+    Items can not be attached to this class.
+    """
+    def __init__(self,
+                 position: List[int] = [0, 0],
+                 size: Tuple[int, int] = (1, 1),
+                 visible: bool = True,
+                 selected: bool = False
+                 ):
         """
-        Returns representation of object.
-        :return: str representation of object
+        Args:
+            position (List[int]): Position of item.
+            size (Tuple[int, int]): Initial size of item.
+            visible (bool): If item currently visible. Defaults to True.
+            selected (bool): If item currently selected. Defaults to False.
         """
+        super().__init__(position, size, visible, selected)
+
+        # These get modified inside this class
+        self.initial_size = self.size
+        self.is_resized = False
+        self.moved_position = [0, 0]
+        self.resized_factor = 1
+
+        # These should be modified by the child class
+        self.resized_size = self.size
+        self.resized = None
+
+    @property
+    def scaled_x(self) -> int:
+        """
+        Property returns scaled x position when item is re-sized, keeping original position intact.
+        """
+        return self.x + self.moved_position[0]
+
+    @property
+    def scaled_y(self) -> int:
+        """
+        Property returns scaled y position when item is re-sized, keeping original position intact.
+        """
+        return self.y + self.moved_position[1]
+
+    @property
+    def scaled_position(self) -> List[int]:
+        """
+        Property returns scaled position when item is re-sized, keeping original position intact.
+        """
+        return [self.scaled_x, self.scaled_y]
+
+    def resize(self, factor: float) -> None:
+        """
+        Method will re-size item based on a factor passed as argument. If class gets inherited method should first get
+        called with super function.
+
+        Args:
+            factor (float): Resize factor, 1 is the same size, 0.5 is half size and 2 is double size
+        """
+        self.resized_factor = factor
+        dx = int((self.width - (self.width * factor)) // 2)
+        dy = int((self.height - (self.height * factor)) // 2)
+        self.moved_position = [dx, dy]
+        self.resized_size = [int(self.width * factor), int(self.height * factor)]
+        self.is_resized = True
+
+    def reset_size(self) -> None:
+        """
+        Method will reset its size to the initial.
+        """
+        self.moved_position = [0, 0]
+        self.is_resized = False
+
+    def __repr__(self) -> str:
         return create_object_repr(self)
