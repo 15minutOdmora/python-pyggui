@@ -47,7 +47,6 @@ class DefaultButton(Item):
                 value=text,
                 font_size=16,
             )
-            print(self.text.size)
         else:
             self.text = text
 
@@ -135,7 +134,8 @@ class Button(Item):
     """
     def __new__(cls, *args, **kwargs):
         # Check if directory_path was passed
-        folder_path = kwargs.pop("directory_path", False)
+        kwargs_copy = kwargs.copy()  # Mutate copy so all kwargs still go through
+        folder_path = kwargs_copy.pop("directory_path", False)
         if folder_path:
             # Create instance of self is passed
             return super(Button, cls).__new__(cls, *args, **kwargs)

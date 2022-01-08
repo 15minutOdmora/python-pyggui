@@ -302,6 +302,18 @@ class ResizableItem(_Item):
         """
         return [self.scaled_x, self.scaled_y]
 
+    def scaled_width(self) -> int:
+        """
+        Property returns objects scaled width. If not resized it is the same as its normal width.
+        """
+        return self.scaled_size[0]
+
+    def scaled_height(self) -> int:
+        """
+        Property returns objects scaled height. If not resized it is the same as its normal height.
+        """
+        return self.scaled_size[1]
+
     def resize(self, factor: float) -> None:
         """
         Method will re-size item based on a factor passed as argument. If class gets inherited method should first get

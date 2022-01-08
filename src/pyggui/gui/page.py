@@ -119,12 +119,10 @@ class Page:
 
     def update(self) -> None:
         """
-        Method updates every item added to page.
+        Method updates every item added to page. Once the item is added, page no longer controlls its position but it
+        has its original position stored.
         """
         for i, item in enumerate(self.items):
-            x = self.x + self.items_positions[i][0]
-            y = self.y + self.items_positions[i][1]
-            item.position = [x, y]
             item.update()
 
     def draw(self) -> None:
