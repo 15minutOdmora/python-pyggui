@@ -71,8 +71,8 @@ class StaticContainer(StaticItem):
         """
         for i, item in enumerate(self.items):
             # Update items positions relative to current self position
-            item.position = [self.x + self.resized_items_positions[i][0],
-                             self.y + self.resized_items_positions[i][1]]
+            item.position = [self.x + self.items_positions[i][0],
+                             self.y + self.items_positions[i][1]]
             item.selected = self.selected
             item.update()
 

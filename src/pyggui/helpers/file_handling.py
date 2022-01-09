@@ -23,7 +23,7 @@ class ImageLoader:
         Returns:
             pygame.surface.Surface: Image loaded as a Pygame surface
         """
-        return pygame.image.load(abs_path(image_path)).convert()  # .convert() optimizes speed by 5x
+        return pygame.image.load(image_path).convert()  # .convert() optimizes speed by 5x
 
     @staticmethod
     def load_transparent_image(image_path: str) -> pygame.surface.Surface:
@@ -36,7 +36,7 @@ class ImageLoader:
         Returns:
             pygame.surface.Surface: Image loaded as a Pygame surface
         """
-        return pygame.image.load(abs_path(image_path)).convert_alpha()  # .convert() optimizes speed by 5x
+        return pygame.image.load(image_path).convert_alpha()  # .convert() optimizes speed by 5x
 
     @staticmethod
     def load_folder(folder_path: str) -> List[pygame.surface.Surface]:
