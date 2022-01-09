@@ -87,6 +87,16 @@ class _Item:
         """
         self.items.append(item)
 
+    def update(self):
+        # Dummy method, some items do not get updated but pages still cal the update method.
+        # This should be overwritten.
+        pass
+
+    def draw(self):
+        # Dummy method, some items do not get drawn but pages still call the draw method.
+        # This should be everwritten.
+        pass
+
     def __repr__(self) -> str:
         return create_object_repr(self)
 
