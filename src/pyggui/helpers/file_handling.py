@@ -74,10 +74,14 @@ class ImageLoader:
 
 
 class DirectoryReader:
+    """
+    Class consisting of static methods for reading directories. Used for fetching sub-directories, all files, the
+    directories structure, etc.
+    """
     @staticmethod
-    def get_all_folders(dir_path: str) -> List[Tuple[str, str]]:
+    def get_all_directories(dir_path: str) -> List[Tuple[str, str]]:
         """
-        Method finds all folder names and its paths in the given directory.
+        Method finds all sub-directories in the given directory.
 
         Args:
             dir_path (str): Path to directory to search from
@@ -107,6 +111,78 @@ class DirectoryReader:
             if item.is_file():
                 file_list.append((item.name, os.path.abspath(item.path)))  # Append tuple
         return file_list
+
+    @staticmethod
+    def get_structure(dir_path: str) -> Dict[str, Union[str, List, Dict]]:
+        """
+        Method goes over the passed directory and creates a special structured dictionary.
+
+        Created dictionary follows this rules:
+            * For each directory create a sub-dictionary under the directories name as the key,
+            * Each file in giver directory is added in a list under 'files' key, file gets added as a tuple where
+                first value is the files name, second value its relative path based on dir_path.
+        The above is then run recursively across the directories tree structure.
+
+        Example:
+            Passing bottom directory with its relative or absolute path
+            Directory:
+                button/
+                    - normal.png
+                    on_click/
+                        - 01.png
+                        - 02.png
+                    on_hover/
+                        - 01.png
+            Will return dictionary:
+                {
+                    'path': 'button/'
+                    'files': [('normal.png', 'button/normal.png')],
+
+                    'on_click': {
+                        'path': 'button/on_click'
+                        'files': [
+                            ('01.png', 'button/on_click/01.png'),
+                            ('02.png', 'button/on_click/02.png')
+                            ]
+                    },
+
+                    'on_hover': {
+                        'path': 'button/on_hover',
+                        'files': [
+                            ('01.png', 'button/on_hover/01.png')
+                        ]
+                    }
+                }
+
+
+        Args:
+            dir_path (str): Directory path to traverse and create structure from.
+
+        Returns:
+            Dict[str, Union[str, List, Dict]]: Structured dictionary.
+        """
+        norm_dir_path = os.path.normpath(dir_path)  # Normalize path
+        main_structure = {"path": norm_dir_path}  # Main mutable dictionary that will get returned
+
+        def traverse(structure: Dict, directory: str) -> None:
+            """
+            Recursive function goes over directory, adding its files in the structure key = 'files' list,
+            recursive call for each directory found.
+            """
+            for name, full_path in [(path, os.path.join(directory, path)) for path in os.listdir(directory)]:
+                # If file
+                if os.path.isfile(full_path):  # Add each file to files key in structure
+                    if "files" not in structure:
+                        structure["files"] = []
+                    structure["files"].append((name, full_path))
+                # If directory
+                if os.path.isdir(full_path):  # Add new structure under basename, recursive call
+                    basename = os.path.basename(full_path)
+                    structure[basename] = {"path": full_path}
+                    traverse(structure[basename], full_path)
+        # Call function
+        traverse(main_structure, norm_dir_path)
+        return main_structure
 
 
 class Json:
