@@ -211,11 +211,6 @@ class Item(_Item):
         """
         Used for drawing itself and every item attached to it.
         """
-        pygame.draw.rect(
-            self.display,
-            (255, 255, 255),
-            self.rect, width=2
-        )
         # Logic for drawing itself goes here
         for item in self.items:
             item.draw()
