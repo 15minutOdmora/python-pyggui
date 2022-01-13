@@ -1,5 +1,5 @@
 """
-Entrypoint module, in case you use `python -mpyggui`.
+Entrypoint module, in case you use `python -m pyggui`.
 
 
 Why does this file exist, and why __main__? For more info, read:
