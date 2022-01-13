@@ -8,6 +8,7 @@ import pygame
 
 from pyggui.gui.item import StaticItem, ResizableItem
 from pyggui.helpers.file_handling import ImageLoader
+from pyggui.helpers.helpers import create_object_repr
 
 
 def fetch_image(image: Union[str, pygame.Surface], transparent: bool = False) -> pygame.Surface:
@@ -73,6 +74,9 @@ class StaticImage(StaticItem):
         for item in self.items:
             item.draw()
 
+    def __repr__(self) -> str:
+        return create_object_repr(self)
+
 
 class ResizableImage(ResizableItem):
     """
@@ -133,6 +137,9 @@ class ResizableImage(ResizableItem):
         self.display.blit(self.current_image, self.position)
         for item in self.items:
             item.draw()
+
+    def __repr__(self) -> str:
+        return create_object_repr(self)
 
 
 class Image:

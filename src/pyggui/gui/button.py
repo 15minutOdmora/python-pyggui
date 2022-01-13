@@ -10,6 +10,7 @@ from pyggui.gui.item import Item
 from pyggui.gui.text import Text
 from pyggui.helpers import DirectoryReader, ImageLoader
 from pyggui.gui.animation import Animator
+from pyggui.helpers.helpers import create_object_repr
 
 
 class DefaultButton(Item):
@@ -119,6 +120,9 @@ class DefaultButton(Item):
 
             for item in self.items:
                 item.draw()
+
+    def __repr__(self) -> str:
+        return create_object_repr(self)
 
 
 class Button(Item):
@@ -276,3 +280,6 @@ class Button(Item):
         self.display.blit(self.animated[self.current_state_key].get(), self.position)
         for item in self.items:
             item.draw()
+
+    def __repr__(self) -> str:
+        return create_object_repr(self)

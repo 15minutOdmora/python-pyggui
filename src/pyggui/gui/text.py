@@ -8,6 +8,7 @@ import pkg_resources
 import pygame
 
 from pyggui.gui.item import StaticItem
+from pyggui.helpers.helpers import create_object_repr
 
 
 class Text(StaticItem):
@@ -82,3 +83,6 @@ class Text(StaticItem):
         self.display.blit(self.surface, self.position)
         for item in self.items:
             item.draw()
+
+    def __repr__(self) -> str:
+        return create_object_repr(self)
