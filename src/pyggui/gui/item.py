@@ -20,6 +20,8 @@ class _Item:
         self.rect = pygame.Rect(position[0], position[1], size[0], size[1])
 
         self.items: List[any] = []  # List of items attached to self
+        self.items_positions: List[Tuple[int, int]] = []
+
         self.visible = visible
         self.selected: bool = selected
 
@@ -78,14 +80,49 @@ class _Item:
         """
         self.position = self.initial_position
 
-    def add_item(self, item: any) -> None:
+    def update_items_positions(self) -> None:
         """
-        Method adds item to self.
+        Method updates every attached items position relative to self.
+        """
+        for i, item in enumerate(self.items):
+            item.position = [self.x + self.items_positions[i][0], self.y + self.items_positions[i][1]]
+
+    def move(self, change: Union[Tuple[int, int], List[int]]) -> None:
+        """
+        Method moves item by specified change along with every attached item.
+
+        Args:
+            change (Union[Tuple[int, int], List[int]]): dx, dy to move item in each direction.
+        """
+        self.position = [self.x + change[0], self.y + change[1]]
+        self.update_items_positions()
+
+    def move_to(self, point: Union[List[int], Tuple[int, int]]) -> None:
+        """
+        Method moves item to specified position along with every attached item.
+
+        Args:
+            point (Union[List[int], Tuple[int, int]]): x, y point to move item to on screen or page.
+        """
+        self.position = point
+        self.update_items_positions()
+
+    def add_item(self, item: any, relative_position: Union[Tuple[int, int], List[int]] = None) -> None:
+        """
+        Method adds item to self. If relative position is not specified, item will be added based on its position
+        relative to this items position. If relative position is specified however, item will be added into that
+        position relative to this items position.
 
         Args:
             item (any): Item to add to self.
+            relative_position (Union[Tuple[int, int], List[int]]): Optional; [x, y] value of added items position
+                relative to this items upper left corner.
         """
+        if not relative_position:
+            relative_position = [item.x - self.x, item.y - self.y]
+        item.position = [self.x + relative_position[0], self.y + relative_position[1]]
         self.items.append(item)
+        self.items_positions.append(relative_position)
 
     def update(self):
         # Dummy method, some items do not get updated but pages still cal the update method.
@@ -94,7 +131,7 @@ class _Item:
 
     def draw(self):
         # Dummy method, some items do not get drawn but pages still call the draw method.
-        # This should be everwritten.
+        # This should be overwritten.
         pass
 
     def __repr__(self) -> str:

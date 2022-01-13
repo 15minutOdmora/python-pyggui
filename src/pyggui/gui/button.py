@@ -159,6 +159,7 @@ class Button(Item):
         on_click: Callable = None,
         movable: bool = False,
         animation_velocity: Union[float, int] = 1,
+        text: Union[str, Text] = None
     ):
         """
         Args:
@@ -171,7 +172,7 @@ class Button(Item):
             movable (bool): If item will be moved by on_click action. Used for slider buttons. Defaults to false.
             animation_velocity (Union[int, float]): Velocity at which to change the current image index. If set to 1;
                 images will be changed at each frame, if set to 0.5; images will be changed every second frame, ...
-                Defaults to 1
+                Defaults to 1.
         """
         self.directory_path = directory_path
         self.animation_velocity = animation_velocity
@@ -187,12 +188,14 @@ class Button(Item):
             "on_click": None
         }
         self.current_state_key = "normal"
-        self.image_setup()
+        self.image_setup()  # Load images
         self.clicked = False
 
+        self.image_size = tuple(self.images["normal"][0].get_rect()[2:])
         # Set size and call parent innit
         if not size:  # Fetch images size if not passed
-            size = tuple(self.images["normal"][0].get_rect()[2:])
+            size = self.image_size
+
         super().__init__(controller, position, size, on_click, movable)
 
     def image_setup(self):
@@ -234,36 +237,37 @@ class Button(Item):
         """ Overwrite parent method for updating this classes custom attributes.
         Used for updating all items attached to it(sizes, positions, etc.).
         """
-        self.hovered = self.rect.collidepoint(self.controller.input.mouse_position)
-        # Check if mouse was clicked on item, in the interval of the debounce time
-        if self.hovered:
-            self.current_state_key = "on_hover"
-            self.animated["normal"].reset_index()
-            # Mouse clicked in set interval
-            if self.mouse_clicked and self.debounce_time():
+        if self.visible:
+            self.hovered = self.rect.collidepoint(self.controller.input.mouse_position)
+            # Check if mouse was clicked on item, in the interval of the debounce time
+            if self.hovered:
+                self.current_state_key = "on_hover"
+                self.animated["normal"].reset_index()
+                # Mouse clicked in set interval
+                if self.mouse_clicked and self.debounce_time():
+                    self.current_state_key = "on_click"
+                    self.clicked = True
+                    self.on_click()
+                    self.was_pressed = True
+            # Mouse was released
+            elif not self.mouse_clicked:
+                self.was_pressed = False
+            # If clicked the on_click animation is ongoing
+            if self.clicked:
                 self.current_state_key = "on_click"
-                self.clicked = True
+                if self.animated["on_click"].at_end:
+                    self.animated["on_click"].reset_index()
+                    self.clicked = False
+            # Not hovering anymore
+            if not self.hovered:
+                self.current_state_key = "normal"
+                self.animated["on_hover"].reset_index()
+            # If was pressed and mouse is not on the item anymore still call on_click method works if movable = True
+            if self.was_pressed and self.movable:  # Only check if item is movable, otherwise get multiple clicks
                 self.on_click()
-                self.was_pressed = True
-        # Mouse was released
-        elif not self.mouse_clicked:
-            self.was_pressed = False
-        # If clicked the on_click animation is ongoing
-        if self.clicked:
-            self.current_state_key = "on_click"
-            if self.animated["on_click"].at_end:
-                self.animated["on_click"].reset_index()
-                self.clicked = False
-        # Not hovering anymore
-        if not self.hovered:
-            self.current_state_key = "normal"
-            self.animated["on_hover"].reset_index()
-        # If was pressed and mouse is not on the item anymore still call on_click method works if movable = True
-        if self.was_pressed and self.movable:  # Only check if item is movable, otherwise get multiple clicks
-            self.on_click()
-        # Update all items
-        for item in self.items:
-            item.update()
+            # Update all items
+            for item in self.items:
+                item.update()
 
     def draw(self):
         """ Overwrite parent method.
