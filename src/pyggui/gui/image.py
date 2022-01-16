@@ -66,6 +66,24 @@ class StaticImage(StaticItem):
         size = tuple(self.image.get_rect()[2:])
         super().__init__(position, size, visible, selected)
 
+    def draw_at(self, position: List[int]) -> None:
+        """
+        Method draws Image at given position without drawing all items attached to self.
+
+        Args:
+            position (List[int]): Position on screen to draw image at.
+        """
+        self.display.blit(self.image, position)
+
+    def get(self) -> pygame.Surface:
+        """
+        Method returns current image.
+
+        Returns:
+            pygame.Surface: Current surface where the image is loaded in.
+        """
+        return self.image
+
     def draw(self) -> None:
         """
         Used for drawing itself and every item attached to it.
