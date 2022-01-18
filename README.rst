@@ -43,7 +43,14 @@ Overview
 
 .. end-badges
 
-Pygame project for simplifying page and menu creation while still leaving full controll
+A Python gui library based around Pygame, meant for simplifying gui development for menus on simple pixel art games (or other types of games). 
+Designed for customization and simplicity. Although the library comes with pre-designed gui items, each can be customized and its functionality personalized to fit your needs.
+
+Start with creating the main Game object, specify your global settings (such as screen size, FPS cap, ...), run the main game loop from it. Create your custom page, add items to it, custom event handlers and more. It will be auto-imported and loaded into your game. 
+
+Your game needs its own loop for optimization reasons? No problem, create a dummy page and run your loop from there. Keep page, menu and item logic separated and tidy. 
+
+See https://python-pyggui.readthedocs.io/en/latest/usage.html for basic concepts.
 
 * Free software: MIT license
 
