@@ -4,6 +4,8 @@
 
 from typing import Union, List, Tuple
 
+import pygame
+
 from pyggui.gui.item import Item
 
 
@@ -151,10 +153,30 @@ class Cell(StaticItem):
                 key, value = _pad[0], int(_pad[1])  # Todo add exception handling
                 self.__pad(item, padding=key, value=value)
 
+    def update(self):
+        for item in self.items:
+            item.update()
+
+    def draw(self, visible: bool = False):
+        if visible:  # Only draw if grid is visible
+            pygame.draw.rect(
+                self.display,
+                color=(0, 0, 0),
+                rect=self.rect,
+                width=0  # Fill this one
+            )
+            pygame.draw.rect(
+                self.display,
+                color(255, 255, 255),
+                rect=self.rect,
+                width=2
+            )
+        for item in self.items:
+            item.draw()
+
 
 class Row:
     def __init__(self, grid: Grid, data: List = None):
-        super(Row, self).__init__()
         self.grid = grid
 
         if data:
@@ -201,6 +223,8 @@ class Grid(StaticItem):
         position: List[int] = [0, 0],
         rows: int = 1,
         columns: int = 1,
+        row_sizes: Union[List[int], List[float]] = None,
+        column_sizes: Union[List[int], List[float]] = None,
         size: Tuple[int, int] = None,
         visible: bool = False,
         selected: bool = False
@@ -210,6 +234,12 @@ class Grid(StaticItem):
             position (List[int] = [0, 0]): Position to place item on screen (or on page).
             rows (int): An integer representing number of rows.
             columns (int): An integer representing number of columns.
+            row_sizes (Union[List[int], List[float]]): List of heights for each row, heights can either (all together)
+                be integer values (representing height of each row in px) or float numbers (representing height of each
+                row by percentage relative to grid size)
+            column_sizes (Union[List[int], List[float]]): List of widths for each column, widths can either
+                (all together) be integer values (representing width of each row in px) or float numbers
+                (representing width of each row by percentage relative to grid size)
             size (Tuple[int, int] = (1, 1)): Size of item.
             visible (bool): If item is currently visible.
             selected (bool): If item is currently selected.
@@ -219,6 +249,9 @@ class Grid(StaticItem):
         super().__init__(posiiton=position, size=size, visible=visible, selected=selected)
 
         self._list: List[Row] = []
+        self._normalize = lambda vec, vec_sum: [val / vec_sum for val in vec]  # Normalize vector:
+        self.row_sizes = row_sizes[:rows]
+        self.column_sizes = column_sizes[:columns]
         self.__make(rows, columns)
 
     def __make(self, number_of_rows: int, number_of_columns: int) -> None:
@@ -229,6 +262,7 @@ class Grid(StaticItem):
             number_of_rows (int): Number of rows.
             number_of_columns (int): Number of columns.
         """
+        # TODO: Set and normalize row and column sizes, incorporate in bottom functionality
         row_height = int(self.height // number_of_rows)
         column_width = int(self.width // number_of_columns)
         curr_x, curr_y = 0, 0
@@ -248,11 +282,50 @@ class Grid(StaticItem):
             curr_x = 0
             curr_y += row_height
 
+    @property
+    def rows(self):
+        return len(self._list)
+
+    @property
+    def columns(self):
+        return len(self._list[0])
+
     def normalize(self) -> None:
         pass
 
-    def add_item(self, item: any, row: int = None, column: int = None, alignment: str = None) -> None:
-        pass
+    def add_item(self,
+                 item: any,
+                 row: int = None,
+                 column: int = None,
+                 alignment: str = None,
+                 padding: str = None
+                 ) -> None:
+        """
+        Method adds item to the grid in the specified cell at position row, column. Optional alignments, and paddings
+        can be defined relative to the cell where the item is being added.
+
+        Args:
+            item (any): Item to add.
+            row (int): Row in grid to add the item in. Starting at 0.
+            column (int): Column in grid to add the item in. Starting at 0.
+            alignment (str): Representing one or more alignment types. These include: centre, top, bottom, left, right.
+                Centre should be defined first. Separate alignments using a space " ".
+            padding (str): Representing one or more paddings of each side of the cell. Multiple can be passed by
+                separating them with commas ",", each padding should be passed as "side px". Where sides include: top,
+                bottom, left, right. Px represents an integer number of pixels to pad.
+                Ex.: padding = "top 5, left 10"
+        """
+        self._list[row][column].add_item(item=item, alignment=alignment, padding=padding)
+
+    def update(self):
+        for row in self._list:
+            for cell in row:
+                cell.update()
+
+    def draw(self):
+        for row in self._list:
+            for cell in row:
+                cell.draw(visible=self.visible)  # Pass if self visible
 
     def __iter__(self):
         for row in self._list:
@@ -272,7 +345,6 @@ class Grid(StaticItem):
 
     def __setitem__(self, i, val):
         """ Set item """
-        # optional: self._acl_check(val)
         self._list[i] = val
 
     def __repr__(self):
