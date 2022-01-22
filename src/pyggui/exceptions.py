@@ -39,3 +39,31 @@ class NotResizableError(ItemError):
     """
     def __init__(self, message=None):
         super(NotResizableError, self).__init__(message)
+
+
+# Assets errors
+class AssetsError(Exception):
+    """
+    Base exception for Assets related errors.
+    """
+    def __init__(self, message=None):
+        if message is None:
+            message = "Undefined error."
+        super(AssetsError, self).__init__(str(message))
+
+
+class AssetsDirectoryNotDefinedError(AssetsError):
+    """
+    Assets directory not defined error. When assets are being accessed by the Assets object, but no direcctory was
+    defined.
+    """
+    def __init__(self, message=None):
+        super(AssetsDirectoryNotDefinedError, self).__init__(message)
+
+
+class AssetDoesNotExistError(AssetsError):
+    """
+    When an asset is being accessed but the directory or file does not exist.
+    """
+    def __init__(self, message=None):
+        super(AssetDoesNotExistError, self).__init__(message)
