@@ -26,7 +26,8 @@ class DefaultButton(Item):
         text: Union[str, Text] = "Button",
         fill_color: Tuple[int, int, int] = (0, 0, 0),
         border_color: Tuple[int, int, int] = (255, 255, 255),
-        movable: bool = False
+        movable: bool = False,
+        visible: bool = True
     ):
         """
         Args:
@@ -39,8 +40,9 @@ class DefaultButton(Item):
             border_color (Tuple[int, int, int]): Border color of button, also determines the color of text if text was
                 passed as string. Defaults to black.
             movable (bool): If item will be moved by on_click action. Used for slider buttons. Defaults to false.
+            visible (bool): If item is currently visible.
         """
-        super().__init__(controller, position, size, on_click, movable)
+        super().__init__(controller, position, size, on_click, movable, visible)
 
         self.controller = controller
 
@@ -162,6 +164,7 @@ class Button(Item):
         size: Tuple[int, int] = None,
         on_click: Callable = None,
         movable: bool = False,
+        visible: bool = True,
         animation_velocity: Union[float, int] = 1,
         text: Union[str, Text] = None
     ):
@@ -174,6 +177,7 @@ class Button(Item):
                 determines the buttons hit-box from its position.
             on_click (Callable): Callable function gets triggered once the button is clicked. Defaults to None.
             movable (bool): If item will be moved by on_click action. Used for slider buttons. Defaults to false.
+            visible (bool): If item is currently visible.
             animation_velocity (Union[int, float]): Velocity at which to change the current image index. If set to 1;
                 images will be changed at each frame, if set to 0.5; images will be changed every second frame, ...
                 Defaults to 1.
@@ -200,7 +204,7 @@ class Button(Item):
         if not size:  # Fetch images size if not passed
             size = self.image_size
 
-        super().__init__(controller, position, size, on_click, movable)
+        super().__init__(controller, position, size, on_click, movable, visible)
 
     def image_setup(self):
         """
@@ -277,9 +281,10 @@ class Button(Item):
         """ Overwrite parent method.
         Used for drawing itself and every item attached to it.
         """
-        self.display.blit(self.animated[self.current_state_key].get(), self.position)
-        for item in self.items:
-            item.draw()
+        if self.visible:
+            self.display.blit(self.animated[self.current_state_key].get(), self.position)
+            for item in self.items:
+                item.draw()
 
     def __repr__(self) -> str:
         return create_object_repr(self)

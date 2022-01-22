@@ -132,17 +132,33 @@ class Page:
         for item in self.items:
             item.draw()
 
-    def on_appearance(self) -> None:
+    def _on_appearance(self) -> None:
         """
-        Method gets called once the page been brought up again.
+        Private method only called by controller.
+        Method gets called once the page has been brought up again. Calls the on_appearance method.
         """
         # Re-add all page event handlers to input
         for event_handler in self.event_handlers:
             self.controller.input.add_event_handler(event_handler)
+        self.on_appearance()
 
-    def on_exit(self) -> None:
+    def on_appearance(self) -> None:
         """
-        Method gets called once the page has been redirected from.
+        Method gets called once the page been has brought up again. Safe for overriding.
+        """
+        pass
+
+    def _on_exit(self) -> None:
+        """
+        Private method only called by controller.
+        Method gets called once the page has been redirected from. Calls the on_exit method.
         """
         # Remove all page event handlers from input
         self.controller.input.remove_event_handlers(self.event_handlers)
+        self.on_exit()
+
+    def on_exit(self) -> None:
+        """
+        Method gets called once the page has been redirected from. Safe for overriding.
+        """
+        pass

@@ -11,6 +11,7 @@ from pyggui.helpers.stack import Stack
 from pyggui.defaults.__welcome_page import _WelcomePage
 from pyggui.configure.pages import get_all_page_classes
 from pyggui.exceptions import RedirectionError
+from pyggui.gui.page import Page
 
 
 class Controller:
@@ -25,10 +26,13 @@ class Controller:
         """
         self.game = game
         self._input = self.game.input  # Set input attr. Accessible through properties
-
         # Pages setup
         self.pages: Dict = get_all_page_classes()
         self.page_stack: Stack = Stack()
+        # Overlay page and items dictionary
+        self.overlay_page = Page(self)
+        self.overlay_items = {}
+        self._single_page = True
         # Landing page setup
         # If no page was found or the default entry was left as is -> add the welcome_page from defaults
         if not bool(self.pages) or self.game.entry_page == "_WelcomePage":
@@ -99,6 +103,28 @@ class Controller:
         """
         self.page_stack.push(page(self))  # Initialize page
 
+    @property
+    def single_page(self) -> bool:
+        """
+        Property for fetching if page stack currently only contains one page. Useful for back buttons.
+
+        Returns:
+            bool: True if only one page is currently inside the page stack.
+        """
+        self._single_page = len(self.page_stack) == 1
+        return self._single_page
+
+    def add_overlay_item(self, item: any, name: str = None):
+        """
+        Method adds item to the overlay page while also adding it to the overlay items dictionary.
+
+        Args:
+            item (any): Item to add.
+            name (str): Name of item, item will get added under this name into the overlay items dictionary.
+        """
+        self.overlay_page.add_item(item)
+        self.overlay_items[name] = item
+
     def add_event_handler(self, event_handler: 'EventHandler') -> None:
         """
         Method adds a game-wide EventHandler object.
@@ -132,8 +158,9 @@ class Controller:
             **kwargs (any): Get passed to pages class initialization.
         """
         if to_page in self.pages.keys():
-            self.current_page.on_exit()  # Call on-exit function
+            self.current_page._on_exit()  # Call on-exit function
             self.page_stack.push(self.pages[to_page](self, *args, **kwargs))  # Initialize page and push on stack
+            self.current_page._on_appearance()  # Call on appearance on new page
         else:
             traceback.print_exc()
             raise RedirectionError(f"Redirection error to page {to_page}. Page does not exist.")
@@ -143,9 +170,9 @@ class Controller:
         Method goes back one page in the page stack.
         """
         if not self.page_stack.empty():
-            self.current_page.on_exit()  # Call on-exit function
+            self.current_page._on_exit()  # Call on-exit function
             self.page_stack.pop()  # Remove current page
-            self.current_page.on_appearance()  # Call on appearance on new page
+            self.current_page._on_appearance()  # Call on appearance on new page
         else:
             traceback.print_exc()
             raise RedirectionError(f"Redirection error going back. Page stack is empty.")

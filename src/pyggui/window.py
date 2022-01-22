@@ -5,6 +5,8 @@ Game wide objects and settings should be set here.
 
 import pygame
 
+from pyggui.gui.page import Page
+
 
 class Window:
     """
@@ -17,6 +19,7 @@ class Window:
         """
         self.game = game
         self.display = self.game.display
+        self.overlay_page = self.game.controller.overlay_page
 
     def update(self) -> None:
         """
@@ -24,5 +27,7 @@ class Window:
         """
         self.display.fill((0, 0, 0))
         self.game.controller.current_page.update()
+        self.overlay_page.update()
         self.game.controller.current_page.draw()
+        self.overlay_page.draw()
         pygame.display.update()

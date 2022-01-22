@@ -150,7 +150,8 @@ class Item(_Item):
         position: List[int] = [0, 0],
         size: Tuple[int, int] = (1, 1),
         on_click: Callable = None,
-        movable: bool = False
+        movable: bool = False,
+        visible: bool = True
     ):
         """
         Args:
@@ -160,8 +161,9 @@ class Item(_Item):
             on_click (Callable): Callable function that gets called once the item is clicked. Default to None.
             movable (bool): If set to true item accepts double error clicks from mouse. (One normal mouse click is
                 usually mora than one received click). Defaults to False.
+            visible (bool): If item is currently visible.
         """
-        super().__init__(position, size)
+        super().__init__(position, size, visible)
 
         self.controller = controller
         self.display = controller.display
