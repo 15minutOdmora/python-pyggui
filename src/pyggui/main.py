@@ -10,7 +10,8 @@ import pygame
 from pyggui.controller import Controller
 from pyggui.input import Input
 from pyggui.window import Window
-from pyggui import configure
+from pyggui.configure import pages as configure_pages
+from pyggui.configure import asset_builder as configure_asset_builder
 
 
 class Game:
@@ -24,6 +25,7 @@ class Game:
         display_size: Tuple[int, int] = (720, 360),
         page_directory: str = None,
         entry_page: str = "_WelcomePage",
+        assets_directory: str = None,
         fps: int = 0,
         display: pygame.surface.Surface = None
     ):
@@ -36,7 +38,9 @@ class Game:
             display (pygame.surface.Surface): Pass your own surface as the main game object display.
         """
         # Import all modules containing pages
-        configure.pages.setup(inspect.stack()[1], directory=page_directory)
+        configure_pages.setup(inspect.stack()[1], directory=page_directory)
+        # Build assets object
+        self.assets = configure_asset_builder.AssetBuilder(assets_directory).build()
 
         # Pygame initial configuration
         if display:
