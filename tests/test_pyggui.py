@@ -1,5 +1,5 @@
 
-from pyggui.cli import main
+from pyggui.client.cli import main
 
 
 def test_main():
