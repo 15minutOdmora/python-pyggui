@@ -9,7 +9,7 @@ import pygame
 from pyggui.helpers.helpers import create_object_repr
 
 
-class _Item:
+class BaseItem:
     """
     Base class for all items.
     """
@@ -24,6 +24,8 @@ class _Item:
 
         self.visible = visible
         self.selected: bool = selected
+
+        self.parent = None  # This points to the item where this one is contained at
 
     @property
     def position(self) -> List[int]:
@@ -121,6 +123,7 @@ class _Item:
         if not relative_position:
             relative_position = [item.x - self.x, item.y - self.y]
         item.position = [self.x + relative_position[0], self.y + relative_position[1]]
+        item.parent = self  # Point to self as parent
         self.items.append(item)
         self.items_positions.append(relative_position)
 
@@ -138,7 +141,7 @@ class _Item:
         return create_object_repr(self)
 
 
-class Item(_Item):
+class Item(BaseItem):
     """
     Class for items that are interactive but dependant on controller object.
     Items have hovered property which is set to true once the item is hovered by mouse. Have on_click method to trigger
@@ -258,7 +261,7 @@ class Item(_Item):
         return create_object_repr(self)
 
 
-class StaticItem(_Item):
+class StaticItem(BaseItem):
     """
     Class for static items that are not intractable (can't be clicked and do not have hovered property).
     """
@@ -293,7 +296,7 @@ class StaticItem(_Item):
         return create_object_repr(self)
 
 
-class ResizableItem(_Item):
+class ResizableItem(BaseItem):
     """
     Base class for defining static items that have actions performed on them and are able to re-size.
     The main difference between the Item class is that it can be resized, the lack of on_hover / on_click methods
@@ -346,12 +349,14 @@ class ResizableItem(_Item):
         """
         return [self.scaled_x, self.scaled_y]
 
+    @property
     def scaled_width(self) -> int:
         """
         Property returns objects scaled width. If not resized it is the same as its normal width.
         """
         return self.scaled_size[0]
 
+    @property
     def scaled_height(self) -> int:
         """
         Property returns objects scaled height. If not resized it is the same as its normal height.
