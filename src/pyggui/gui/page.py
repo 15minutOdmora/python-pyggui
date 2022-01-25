@@ -29,6 +29,8 @@ class Page:
 
         self.event_handlers: List[EventHandler] = []
 
+        self.parent = None  # Used if page is contained in another page
+
     @property
     def position(self) -> List[int]:
         return [self.rect.x, self.rect.y]
@@ -114,6 +116,7 @@ class Page:
         Args:
             item (any): Item to add to page. Item must have the update and draw methods.
         """
+        item.parent = self
         self.items.append(item)
         self.items_positions.append(item.position)
 
