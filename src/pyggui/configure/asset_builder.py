@@ -22,6 +22,7 @@ class Directory:
 
     Directory can be iterated through every one of its contents, where sub-directories come first and files second.
     Printing out the object will output its structure.
+    TODO: Implement repr method.
     """
     def __init__(self, directory_structure: Dict):
         """
@@ -52,21 +53,14 @@ class Directory:
         return not ((self._files != []) and (self._folders != []))
 
     def __getattr__(self, attr):
-        """
-        For fetching sub-directories and files using the . notation. Only files return the actual path,
-        directories path should be fetched using the path attribute.
-        """
-        if attr == "path":
-            return self.directory_structure["_path"]
-        elif attr in self.directory_structure:  # If sub-directory, return Directory object
-            return Directory(directory_structure=self.directory_structure[attr])
-        elif "_files" in self.directory_structure:  # If file, return file path
-            if attr in self.directory_structure["_files"]:
-                return self.directory_structure["_files"][attr]["_path"]
-        # Raise error otherwise
-        asset_path = self.directory_structure["_path"] + "\\" + attr
-        message = f"The asset {asset_path} does not exist in the defined assets directory."
-        raise AssetDoesNotExistError(message)
+        print(attr)
+        if attr in self:
+            getattr(self, attr)
+        else:
+            # Raise error otherwise
+            asset_path = self.directory_structure["_path"] + "\\" + attr
+            message = f"The asset {asset_path} does not exist in the defined assets directory."
+            raise AssetDoesNotExistError(message)
 
     def __iter__(self):
         for directory in self._directories:
@@ -74,21 +68,34 @@ class Directory:
         for file in self._files:
             yield file
 
-    def __repr__(self):
-        """
-        Should not be used for actual representation, meant for printing and visualizing the structure of the
-        directory.
-        """
-        indent = ((self.path.count("\\") + 1) * 4) * " "
-        path = self.path.split("\\")[-1]
-        out_string = f"{path}\\"
-        for path in self.files:
-            filename = path.split('\\')[-1]
-            out_string += f"\n{indent}{filename}"
-        for key, value in self.directory_structure.items():
-            if key not in ["_path", "_files"]:
-                out_string += f"\n{indent}{self.__getattr__(key)}"
-        return out_string.replace("\\", "/")
+
+def build_directory(directory_structure: Dict) -> Directory:
+    """
+    Function builds directory object by setting it appropriate attributes, sub-directories get also added as
+    attributes and recursively built.
+
+    Args:
+        directory_structure (Dict): Dictionary containing structure, created inside the AssetBuilder.build method.
+
+    Returns:
+        Directory: Object.
+    """
+    parent_directory = Directory(directory_structure)
+
+    def build(dir_structure, directory):
+        setattr(directory, "path", dir_structure["_path"])
+        for attr in directory.directory_structure:  # If sub-directory, set new sub-Directory object
+            if attr != "_path" and attr != "_files":
+                child_dir = Directory(directory_structure=dir_structure[attr])  # Make object
+                setattr(directory, attr, child_dir)  # Set is as an attribute
+                build(directory.directory_structure[attr], child_dir)  # Recursive build child
+        if "_files" in dir_structure:  # If file, return file path
+            for attr in directory.directory_structure["_files"]:
+                setattr(directory, attr, dir_structure["_files"][attr]["_path"])
+
+    build(directory_structure, parent_directory)
+
+    return parent_directory
 
 
 class Assets:
@@ -122,7 +129,7 @@ class AssetBuilder:
         else:
             self.directory_path = os.path.normpath(directory)  # Normalize path
 
-    def build(self) -> Union[Assets, Directory]:
+    def build(self) -> Dict:
         """
         Method will build and return the correct object for using assets in game. If path was not defined the
         dummy Asset object gets returned, so if access to some file is attempted an error gets returned.
@@ -151,7 +158,8 @@ class AssetBuilder:
                     basename = os.path.basename(full_path)
                     structure[basename] = {"_path": full_path}
                     traverse(structure[basename], full_path)
+
         # Call function
         traverse(main_structure, norm_dir_path)
         # Return directory object
-        return Directory(main_structure)
+        return build_directory(main_structure)
