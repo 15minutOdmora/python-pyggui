@@ -4,7 +4,7 @@ Ultimately the functions used here are used for importing all modules that conta
 class of the _pyggui.gui.page module. This is then used by the controller class to fetch all Page type classes.
 """
 
-from typing import Dict
+from typing import Dict, List
 import os
 import sys
 import inspect
@@ -12,6 +12,7 @@ import glob
 import importlib
 import pkgutil
 
+from pyggui.configure.build import update_config_file
 
 ignore_directories = ["venv", "env"]
 
@@ -60,14 +61,15 @@ def create_module_import_string(package_name: str, module_path: str) -> str:
     return ".".join(path_list[package_root_index + 1:])
 
 
-def import_all_modules(dir_path: str, called_from_module: str) -> None:
+def get_all_page_import_strings(dir_path: str, called_from_module: str) -> List[str]:
     """
-    Function imports all modules in the directory structure except the called_from_module.
+    Function reads and creates all needed import strings in the directory structure except the called_from_module.
 
     Args:
         dir_path (str): Directory root to import all modules from its structure.
         called_from_module (str): Absolute path of module where call originated (main module), will be ignored.
     """
+    import_strings = []
     # Get directory of module the call originated from
     package_name = os.path.basename(os.path.dirname(called_from_module))
     # Traverse directory structure, ignore some directories
@@ -80,8 +82,30 @@ def import_all_modules(dir_path: str, called_from_module: str) -> None:
                 # Check file is not the one where the call originated from (this would cause double imports)
                 if not os.path.samefile(file_path, called_from_module):
                     # Create module-import string and import the module
-                    import_str = create_module_import_string(package_name, os.path.join(root, filename))
-                    importlib.import_module(import_str)
+                    import_strings.append(create_module_import_string(package_name, os.path.join(root, filename)))
+    return import_strings
+
+
+def import_all_modules(dir_path: str, called_from_module: str) -> None:
+    """
+    Function imports all modules in the directory structure except the called_from_module.
+
+    Args:
+        dir_path (str): Directory root to import all modules from its structure.
+        called_from_module (str): Absolute path of module where call originated (main module), will be ignored.
+    """
+    import_strings = get_all_page_import_strings(dir_path, called_from_module)
+
+    for import_string in import_strings:
+        importlib.import_module(import_string)
+
+    # Save import strings into the config.json file located in the (newly created) build directory in the curr. proj.
+    dir_path = os.path.dirname(called_from_module)
+    config_dict = {
+        "imports": import_strings,
+        "project_path": dir_path
+    }
+    update_config_file(dir_path=dir_path, data=config_dict)
 
 
 def setup(call_from: inspect.FrameInfo, directory: str = None) -> None:
