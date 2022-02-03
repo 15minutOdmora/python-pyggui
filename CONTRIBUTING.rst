@@ -51,7 +51,7 @@ To set up `python-pyggui` for local development:
 
    Now you can make your changes locally.
 
-4. Create directory for testing changes::
+4. Create directory for testing changes:
 
    Create directory, move into it::
 
@@ -68,6 +68,15 @@ To set up `python-pyggui` for local development:
     $ pip install -e path/to/python-pyggui
 
    Now you can test your code. Library will get auto-updated because of the -e command.
+
+   Some functionalities require the library to be installed as it would be from pip, in that case use either::
+
+    $ pip install path/to/python-pyggui
+
+   Or install via setup.py::
+
+    $ python3 path/to/python-pyggui/setup.py install
+
 
 5. When you're done making changes run all the checks and docs builder with `tox <https://tox.readthedocs.io/en/latest/install.html>`_ one command::
 
