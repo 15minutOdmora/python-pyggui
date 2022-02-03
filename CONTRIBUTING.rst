@@ -42,32 +42,32 @@ To set up `python-pyggui` for local development:
 2. Clone your fork locally::
 
     git clone git@github.com:YOURGITHUBNAME/python-pyggui.git
-    
-   Now you can make your changes locally. 
+
+   Now you can make your changes locally.
 
 3. Create a branch for local development::
 
     git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
-    
+
 4. Create directory for testing changes::
 
    Create directory, move into it::
 
     $ mkdir pyggui_testing
     $ cd pyggui_testing
-   
+
    Create venv and activate::
-       
+
     $ python -m venv venv
     $ venv/scripts/activate
-    
+
    While in venv copy pyggui project path and install it::
-    
-    $ python path/to/python-pyggui/setup.py install
-   
-   Now you can test your code. For updating changes you made just run the last block (above).
+
+    $ pip install -e path/to/python-pyggui
+
+   Now you can test your code. Library will get auto-updated because of the -e command.
 
 5. When you're done making changes run all the checks and docs builder with `tox <https://tox.readthedocs.io/en/latest/install.html>`_ one command::
 
