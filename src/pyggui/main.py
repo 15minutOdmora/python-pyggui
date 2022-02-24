@@ -2,6 +2,7 @@
 Module containing main Game class
 """
 
+import sys
 from typing import Tuple
 import inspect
 
@@ -18,8 +19,6 @@ class Game:
     """
     Main class for game, holds every game wide property, setting and the main run loop.
     """
-    pygame.init()  # Init Pygame on import time
-
     def __init__(
         self,
         display_size: Tuple[int, int] = (720, 360),
@@ -37,8 +36,14 @@ class Game:
             fps (int): Fps constant for game loop.
             display (pygame.surface.Surface): Pass your own surface as the main game object display.
         """
-        # Import all modules containing pages
-        configure_pages.setup(inspect.stack()[1], directory=page_directory)
+        pygame.init()  # Init Pygame on import time
+
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):  # If running from PyInstaller
+            # Todo: Implement functionality for running through bundled application
+            pass
+        else:  # Running from a normal Python process
+            # Import all modules containing pages
+            configure_pages.setup(inspect.stack()[1], directory=page_directory)
         # Build assets object
         self.assets = configure_asset_builder.AssetBuilder(assets_directory).build()
 
