@@ -23,7 +23,7 @@ def read(*names, **kwargs):
 
 setup(
     name='pyggui',
-    version='0.0.0',
+    version='0.0.1',
     license='MIT',
     description='Pygame project for simplifying page and menu creation while still leaving full controll',
     long_description='%s\n%s' % (
@@ -73,6 +73,7 @@ setup(
     python_requires='>=3.6',
     install_requires=[
         'pygame>2',
+        'pyinstaller'
     ],
     extras_require={
         # eg:

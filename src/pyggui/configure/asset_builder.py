@@ -53,7 +53,6 @@ class Directory:
         return not ((self._files != []) and (self._folders != []))
 
     def __getattr__(self, attr):
-        print(attr)
         if attr in self:
             getattr(self, attr)
         else:
